@@ -10,6 +10,16 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 val mysql = "mysql" % "mysql-connector-java" % "6.0.6"
 val playJsonDerivedCodecs = "org.julienrf" %% "play-json-derived-codecs" % "3.3"
 
+val commonLagomImplSettings = libraryDependencies ++= Seq(
+  lagomScaladslPersistenceJdbc,
+  lagomScaladslKafkaBroker,
+  lagomScaladslTestKit,
+  mockito,
+  scalaTest,
+  macwire,
+  mysql
+)
+
 lazy val `mae-app` = (project in file("."))
   .aggregate(`user-api`, `user-impl`, `item-api`, `item-impl`, `order-api`, `order-impl`)
 
@@ -31,17 +41,8 @@ lazy val `user-api` = (project in file("user-api"))
 lazy val `user-impl` = (project in file("user-impl"))
   .enablePlugins(LagomScala, CopyPasteDetector)
   .settings(lagomForkedTestSettings: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomScaladslPersistenceJdbc,
-      lagomScaladslKafkaBroker,
-      lagomScaladslTestKit,
-      mockito,
-      scalaTest,
-      macwire,
-      mysql
-    )
-  ).dependsOn(`user-api`)
+  .settings(commonLagomImplSettings: _*)
+  .dependsOn(`user-api`)
 
 lazy val `item-api` = (project in file("item-api"))
   .settings(
@@ -53,16 +54,8 @@ lazy val `item-api` = (project in file("item-api"))
 lazy val `item-impl` = (project in file("item-impl"))
   .enablePlugins(LagomScala, CopyPasteDetector)
   .settings(lagomForkedTestSettings: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomScaladslPersistenceJdbc,
-      lagomScaladslTestKit,
-      mockito,
-      scalaTest,
-      macwire,
-      mysql
-    )
-  ).dependsOn(`item-api`)
+  .settings(commonLagomImplSettings: _*)
+  .dependsOn(`item-api`)
 
 lazy val `order-api` = (project in file("order-api"))
   .settings(
@@ -74,14 +67,5 @@ lazy val `order-api` = (project in file("order-api"))
 lazy val `order-impl` = (project in file("order-impl"))
   .enablePlugins(LagomScala, CopyPasteDetector)
   .settings(lagomForkedTestSettings: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomScaladslPersistenceJdbc,
-      lagomScaladslKafkaBroker,
-      lagomScaladslTestKit,
-      mockito,
-      scalaTest,
-      macwire,
-      mysql
-    )
-  ).dependsOn(`order-api`)
+  .settings(commonLagomImplSettings: _*)
+  .dependsOn(`order-api`)

@@ -20,6 +20,8 @@ abstract class UserComponents(context: LagomApplicationContext) extends LagomApp
   override lazy val jsonSerializerRegistry = UserJsonSerializerRegistry
 
   override def lagomServer: LagomServer = serverFor[UserService](wire[UserServiceImpl])
+
+  persistentEntityRegistry.register(wire[UserEntity])
 }
 
 abstract class UserApplication (context: LagomApplicationContext) extends UserComponents(context) with LagomKafkaComponents
