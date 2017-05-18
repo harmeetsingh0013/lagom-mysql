@@ -1,1 +1,1 @@
-# mae_app
+# lagom-mysql
