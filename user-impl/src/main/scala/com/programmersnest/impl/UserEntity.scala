@@ -1,21 +1,20 @@
 package com.programmersnest.impl
 
-import java.sql.Timestamp
 import java.util.Date
 
 import akka.Done
-import com.lightbend.lagom.scaladsl.api.transport.NotFound
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, AggregateEventTagger, PersistentEntity}
 import com.programmersnest.api.models.User
+import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.{Format, Json}
-
-import scala.util.Try
 
 /**
   * Created by harmeet on 9/5/17.
   */
 class UserEntity extends PersistentEntity {
+
+  private val log: Logger = LoggerFactory.getLogger(this.getClass)
 
   override type Command = UserCommand
   override type Event = UserEvent
@@ -23,13 +22,20 @@ class UserEntity extends PersistentEntity {
 
   override def initialState: UserEntityState = UserEntityState(None, None, timestamp = (new Date).getTime)
 
+  override def recoveryCompleted(state: UserEntityState): UserEntityState = {
+    state.userId match {
+      case Some(userId) => log.info(s"User with ${state.userId} recovered successfully ... ")
+      case None => log.error(s"Unable to recover not exist user ... ")
+    }
+    state
+  }
+
   override def behavior: Behavior = Actions()
   .onCommand[AddNewUser, Done] {
     case (AddNewUser(user), ctx, state) =>
       ctx.thenPersist(UserAdded(entityId, user)) {_ => ctx.reply(Done)}
-  }.onReadOnlyCommand[UserDetail, User] {
-    case (UserDetail(id), ctx, state) =>
-      Try(state.user).toOption.getOrElse(throw NotFound(s"user with ${id} not found"))
+  }.onReadOnlyCommand[UserDetail, Option[User]] {
+    case (UserDetail(id), ctx, state) => ctx.reply(state.user)
   }.onEvent {
     case (UserAdded(userId, user), state) =>
       UserEntityState(Some(userId), Some(user), System.currentTimeMillis())
@@ -43,7 +49,7 @@ object AddNewUser {
   implicit val format: Format[AddNewUser] = Json.format[AddNewUser]
 }
 
-case class UserDetail(id: String) extends UserCommand with ReplyType[User]
+case class UserDetail(id: String) extends UserCommand with ReplyType[Option[User]]
 object UserDetail {
   implicit val format: Format[UserDetail] = Json.format[UserDetail]
 }

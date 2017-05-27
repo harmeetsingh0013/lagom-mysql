@@ -38,7 +38,10 @@ class UserServiceImpl(registry: PersistentEntityRegistry)(implicit ec: Execution
 
   override def findUserDetail(id: String): ServiceCall[NotUsed, User] = ServerServiceCall { _ =>
     log.info(s"find $id user detail ... ")
-    systemRefFor(id).ask(UserDetail(id))
+    systemRefFor(id).ask(UserDetail(id)) map {
+      case Some(user) => user
+      case None => throw NotFound(s"User with ${id} id not found.")
+    }
   }
 
   override def searchUsers(name: Option[String], limit: Option[Int], sort: Option[String]):
