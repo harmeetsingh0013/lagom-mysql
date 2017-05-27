@@ -12,6 +12,7 @@ import com.programmersnest.api
 import com.programmersnest.api.UserService
 import com.programmersnest.api.models.User
 import com.programmersnest.utility.{Constant, Utility}
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,20 +21,24 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class UserServiceImpl(registry: PersistentEntityRegistry)(implicit ec: ExecutionContext) extends UserService {
 
+  private val log = LoggerFactory.getLogger(classOf[UserServiceImpl])
   private def systemRefFor(systemId: String) = registry.refFor[UserEntity](systemId)
 
   override def addNewUser: ServiceCall[User, Done] = ServerServiceCall { user =>
     val newUser = user.copy(id = Some(Utility.generateUUID),
       date = Some(new Timestamp(System.currentTimeMillis())), status = Some(Constant.INACTIVE))
+
+    log.info(s"New user with ${newUser.id.get} id will added.")
     systemRefFor(newUser.id.get).ask(AddNewUser(newUser))
   }
 
-  override def findAllUsers(limit: Int): ServiceCall[NotUsed, Vector[User]] = ServerServiceCall {_ =>
+  override def findAllUsers(limit: Int): ServiceCall[NotUsed, Vector[User]] = ServerServiceCall { _ =>
     Future.successful(Vector.empty)
   }
 
-  override def findUserDetail(id: String): ServiceCall[NotUsed, User] = ServerServiceCall{_ =>
-    Future.successful(throw NotFound(" ------ "))
+  override def findUserDetail(id: String): ServiceCall[NotUsed, User] = ServerServiceCall { _ =>
+    log.info(s"find $id user detail ... ")
+    systemRefFor(id).ask(UserDetail(id))
   }
 
   override def searchUsers(name: Option[String], limit: Option[Int], sort: Option[String]):
