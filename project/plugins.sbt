@@ -12,3 +12,5 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
 
 // Lagom conductr
 addSbtPlugin("com.lightbend.conductr" % "sbt-conductr" % "2.3.4")
+
+addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC3")

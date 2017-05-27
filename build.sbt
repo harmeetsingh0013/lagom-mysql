@@ -17,7 +17,9 @@ val commonLagomImplSettings = libraryDependencies ++= Seq(
   mockito,
   scalaTest,
   macwire,
-  mysql
+  mysql,
+  "io.get-coursier" %% "coursier" % "1.0.0-RC3",
+  "io.get-coursier" %% "coursier-cache" % "1.0.0-RC3"
 )
 
 lazy val `mae-app` = (project in file("."))

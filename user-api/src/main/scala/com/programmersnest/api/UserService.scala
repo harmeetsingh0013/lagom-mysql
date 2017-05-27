@@ -11,7 +11,7 @@ import com.programmersnest.api.models.User
   */
 trait UserService extends Service {
 
-  def addOrUpdateUser: ServiceCall[User, Done]
+  def addNewUser: ServiceCall[User, Done]
 
   def findAllUsers(limit: Int): ServiceCall[NotUsed, Vector[User]]
 
@@ -28,7 +28,7 @@ trait UserService extends Service {
     import Service._
 
     named("user").withCalls(
-      restCall(POST, "/api/user", addOrUpdateUser _),
+      restCall(POST, "/api/user", addNewUser _),
       pathCall("/api/users?limit", findAllUsers _),
       pathCall("/api/user/:id", findUserDetail _),
       pathCall("/api/users/search?name&limit&sort", searchUsers _),

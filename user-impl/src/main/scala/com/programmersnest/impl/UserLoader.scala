@@ -7,6 +7,7 @@ import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.persistence.jdbc.JdbcPersistenceComponents
 import com.lightbend.lagom.scaladsl.server._
 import com.programmersnest.api.UserService
+import com.programmersnest.impl.repository.UserRepository
 import com.softwaremill.macwire.wire
 import play.api.db.HikariCPComponents
 import play.api.libs.ws.ahc.AhcWSComponents
@@ -22,6 +23,8 @@ abstract class UserComponents(context: LagomApplicationContext) extends LagomApp
   override def lagomServer: LagomServer = serverFor[UserService](wire[UserServiceImpl])
 
   persistentEntityRegistry.register(wire[UserEntity])
+  lazy val userRepository = wire[UserRepository]
+  readSide.register(wire[UserEventProcessor])
 }
 
 abstract class UserApplication (context: LagomApplicationContext) extends UserComponents(context) with LagomKafkaComponents

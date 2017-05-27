@@ -1,5 +1,7 @@
 package com.programmersnest.impl
 
+import java.sql.Timestamp
+
 import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.transport.NotFound
@@ -20,8 +22,9 @@ class UserServiceImpl(registry: PersistentEntityRegistry)(implicit ec: Execution
 
   private def systemRefFor(systemId: String) = registry.refFor[UserEntity](systemId)
 
-  override def addOrUpdateUser: ServiceCall[User, Done] = ServerServiceCall { user =>
-    val newUser = user.copy(id = Some(Utility.generateUUID), status = Some(Constant.INACTIVE))
+  override def addNewUser: ServiceCall[User, Done] = ServerServiceCall { user =>
+    val newUser = user.copy(id = Some(Utility.generateUUID),
+      date = Some(new Timestamp(System.currentTimeMillis())), status = Some(Constant.INACTIVE))
     systemRefFor(newUser.id.get).ask(AddNewUser(newUser))
   }
 
